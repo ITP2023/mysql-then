@@ -6,10 +6,21 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "mysql", "db", "databases", "promise"
+  ],
+  "author": "itp2023",
+  "license": "MIT",
   "dependencies": {
     "mysql": "^2.18.1"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ITP2023/mysql-then.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ITP2023/mysql-then/issues"
+  },
+  "homepage": "https://github.com/ITP2023/mysql-then#readme"
 }
