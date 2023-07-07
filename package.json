@@ -1,6 +1,6 @@
 {
   "name": "mysql-then",
-  "version": "1.0.0",
+  "version": "0.1.2",
   "description": "A simple wrapper around the `mysql` package, promisifying it's important functions.",
   "main": "index.js",
   "scripts": {

@@ -1,6 +1,16 @@
 # mysql-then
 
-A tiny lib just to expose the `mysql` drivers for node.js in a promise-friendly way.
+_After `mysql` came `mysql-then`_
+
+## How does it help you?
+
+- Modern JS server stacks are asynchronous. So, it only makes sense for `mysql` to be asynchronous.
+
+- SQL libs rely on string queries which may be tiresome to work with if you have long queries that perform complex operations. Readbility is also reduced in this case.
+
+Enter `mysql-then`, which at it's core is designed to asynchronize MySQL communication.
+
+In order to make queries more closer to  JavaScript, you can use the provided `QueryBuilder` or stick to stringified queries. **The choice is completely yours to make.**
 
 ## Usage
 
@@ -21,7 +31,24 @@ const connection = mysqli.createConnection({
   await connection.end();
 })();
 ```
+using `QueryBuilder`
 
+```javascript
+const q = QueryBuilder.onDB("test")
+.onTable("Customers")
+.onColumns([ "Customer_id" ])
+.select()
+.where(
+  Conditions.eq("Customer_id", 3005)
+)
+.finish();
+
+...
+
+await connection.query(q);
+
+
+```
 ## Anything more?
 - A proposed type system is still to be worked out.
 - make helper functions to do more with the results than just expose them.

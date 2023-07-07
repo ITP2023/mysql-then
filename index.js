@@ -14,7 +14,62 @@ class QueryBuilder {
   static onDB(dbName) {
     return new DatabaseActor();
   }
+
+  // /**
+  //  * 
+  //  * @param {string[]} col_arr 
+  //  * @returns 
+  //  */
+  // static select(col_arr) {
+  //   return new SelectStatementTemplate(col_arr);
+  // }
 }
+
+
+// class SelectStatementTemplate {
+//   execute_str = "SELECT ";
+//   col_arr = [];
+//   from = "";
+//   cond_arr = [];
+//   /**
+//    * 
+//    * @param {string[] | undefined} col_arr 
+//    */
+//   constructor(col_arr) {
+//     this.col_arr = this.col_arr ? this.col_arr : ["*"];
+//     this.execute_str = "SELECT ";
+//     this.from = "";
+//   }
+
+//   /**
+//    * table or expression
+//    * @param {string} source 
+//    */
+//   from(source) {
+//     this.fromTable = source;
+//     return this;
+//   }
+  
+//   /**
+//    * @param {[string, string, string]} condition
+//    */
+//   where(condition) {
+//     this.cond_arr.push(condition);
+//     return this;
+//   }
+
+//   finish() {
+//     if (this.cond_arr.length <= 0) {
+//       return this.execute_str + ";";
+//     }
+//     this.execute_str += " WHERE ";
+//     for (const cond of this.cond_arr) {
+//       this.execute_str += (cond.join(" ") + ",");
+//     }
+//     this.execute_str = this.execute_str.slice(0, this.execute_str.length - 1);
+//     return this.execute_str + ";";
+//   }
+// }
 
 class StatementFormatError extends Error {
   constructor() {
@@ -22,6 +77,47 @@ class StatementFormatError extends Error {
     this.name = "[StatementFormatError]";
   }
 }
+
+class WhereStatement {
+
+  parent_caller = null;
+  execute_str = "";
+  cond_arr = [];
+  constructor(parent_caller, execute_str, cond_array) {
+    this.parent_caller = parent_caller;
+    this.execute_str = execute_str;
+    this.cond_arr = cond_array;
+  }
+  /**
+   * 
+   * @param {[string, string, string][]} eval_stmt
+   * @returns 
+   */
+  where(...eval_stmt) {
+    console.log("eval_stmt = ", eval_stmt);
+    if (eval_stmt.length > 3) {
+      throw new StatementFormatError();
+    }
+    this.cond_arr = eval_stmt
+    return this.parent_caller;
+  }
+
+  finish() {
+    if (this.cond_arr.length !== 0) {
+      console.log("cond_arr = ", this.cond_arr.size);
+      this.execute_str += " WHERE ";
+      console.log("@finish() -> cond_arr = ", this.cond_arr);
+      for (let i = 0; i < this.cond_arr.length; i++) {
+        this.execute_str += (this.cond_arr[i].join(" ") + ",");
+        console.log("cond_array[i].join(\" \") = ", this.cond_arr[i].join(" "));
+      }
+      console.log("@finish(): execute_str = ", this.execute_str);
+      this.execute_str = this.execute_str.slice(0, this.execute_str.length - 1);
+    }
+    return this.execute_str + ";";
+  }
+}
+
 
 class DatabaseActor {
 
@@ -54,7 +150,8 @@ class TableActor extends WhereStatement {
    * @param {string} tableName 
    */
   constructor(tableName) {
-    super(this);
+    super(null, "", []);
+    this.parent_caller = this;
     this.tableName = tableName;
   }
 
@@ -64,7 +161,7 @@ class TableActor extends WhereStatement {
    * @returns {ColumnActor}
    */
   onColumns(col_arr) {
-    return new ColumnActor("", col_arr, [[]], this);
+    return new ColumnActor("", col_arr, this.cond_arr, this);
   }
 
   /**
@@ -80,16 +177,7 @@ class TableActor extends WhereStatement {
     return this;
   }
 
-  finish() {
-    if (this.cond_arr.length !== 0) {
-      let where_arr = [];
-      for (let i = 0; i < this.cond_arr.length; i++) {
-        where_arr.push()
-      }
-      this.execute_str += `WHERE `
-    }
-    return this.execute_str + ";";
-  }
+
 }
 
 
@@ -159,9 +247,9 @@ class ColumnActor extends WhereStatement {
    * @param {string[]} col_arr
    */
   constructor(execute_str, col_arr, cond_array, tableRef) {
-    super(this);
+    super(null, execute_str, cond_array);
+    this.parent_caller = this;
     this.execute_str = execute_str;
-    this.cond_array = cond_array;
     this.table_ref = tableRef;
     this.col_arr = col_arr;
   }
@@ -210,38 +298,7 @@ class ColumnActor extends WhereStatement {
   }
 
   
-  finish() {
-    if (this.cond_array.length !== 0) {
-      
-    }
-    return this.execute_str;
-  }
   
-  
-}
-class WhereStatement {
-
-  parent_caller = null;
-  execute_str = "";
-  cond_arr = [];
-  constructor(parent_caller, execute_str, cond_array) {
-    this.parent_caller = parent_caller;
-    this.execute_str = execute_str;
-    this.cond_arr = cond_array;
-  }
-  /**
-   * 
-   * @param {[string, string, string][]} eval_stmt
-   * @returns 
-   */
-  where(...eval_stmt) {
-    if (eval_stmt.length > 3) {
-      throw new StatementFormatError();
-    }
-    this.cond_array.push(...eval_stmt);
-    return this.parent_caller;
-  }
-
 }
 
 
